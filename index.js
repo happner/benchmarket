@@ -31,7 +31,7 @@ module.exports.start = function() {
 /**
  * stop()
  *
- * Terminates the benchmarker and restore the original it function
+ * Terminates the benchmarker and restores the original it() function
  *
  */
 
@@ -43,7 +43,7 @@ module.exports.stop = function() {
 /**
  * bench()
  *
- * Decorate per test without overriding mocha's it function
+ * Decorate per test without overriding mocha's it() function
  *
  */
 
@@ -96,7 +96,7 @@ module.exports.bench = bench = function(testFn) {
  * before()
  *
  * Runs just before the test (it)
- * but after any mocha befores or beforeAlls
+ * but after any mocha befores or beforeEaches
  *
  */
 
@@ -109,7 +109,7 @@ before = function(test) {
  * after()
  *
  * Runs just after the test (it)
- * but after any mocha befores or beforeAlls
+ * but after any mocha befores or beforeEaches
  *
  * NOTE: does not run if the test times out...
  *
