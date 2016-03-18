@@ -1,6 +1,7 @@
 var start, original, bench, before, after, conf;
 var config = require('./config');
 
+
 /**
  * start()
  *
@@ -26,6 +27,7 @@ module.exports.start = function() {
   }
 }
 
+
 /**
  * stop()
  *
@@ -37,8 +39,9 @@ module.exports.stop = function() {
   global.it = original;
 }
 
+
 /**
- * decorate()
+ * bench()
  *
  * Decorate per test without overriding mocha's it function
  *
