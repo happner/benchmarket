@@ -15,7 +15,7 @@ describe('suite name', function() {
     require('benchmarket').stop();
   });
 
-  // all tests are wrapped in benchmarker function
+  // all tests are transparently wrapped in benchmarker function
 
   it('test 1', function(done) {});
   it('test 2', function(done) {});
