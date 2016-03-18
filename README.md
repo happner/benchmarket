@@ -48,5 +48,21 @@ Create a `.benchmarket.js` file in your home or test directory.
 
 **IMPORTANT:** The configurer searches up your directory tree, deepest configs override shallower.
 
+#### Config Options
 
+Shown with defaults.
+
+```javascript
+module.exports = {
+
+  // include memory usage in menchmarks
+  mem: true,
+
+  // interval for memory sampling
+  mem_interval: 5000,
+
+}
+```
+
+**IMPORTANT:** To disable a boolean config declared uptree set it to `null`
 

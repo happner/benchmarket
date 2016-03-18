@@ -1,3 +1,7 @@
+var defaults = {
+  mem: true,
+  mem_interval: 5000,
+}
 var config = {};
 var fs = require('fs');
 var path = require('path');
@@ -26,5 +30,11 @@ module.exports.load = function(caller) {
   console.log('RETURN NEW');
   currentPath = caller;
   recurse(path.dirname(caller));
+  Object.keys(defaults).forEach(function(key) {
+    if (typeof config[key] === 'undefined') {
+      config[key] = defaults[key];
+    }
+  });
+
   return config;
 }
