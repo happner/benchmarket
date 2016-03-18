@@ -26,7 +26,7 @@ describe('suite name', function() {
 #### Benchmark Specific Test
 
 ```javascript
-var bench = require('benchmarket').bench
+var bench = require('benchmarket').bench;
 
 describe('suite name', function() {
 
@@ -48,6 +48,8 @@ Create a `.benchmarket.js` file in your home or test directory.
 
 **IMPORTANT:** The configurer searches up your directory tree, deepest configs override shallower.
 
+**IMPORTANT:** To disable a boolean config declared uptree set it to `null`
+
 #### Config Options
 
 Shown with defaults.
@@ -55,7 +57,7 @@ Shown with defaults.
 ```javascript
 module.exports = {
 
-  // include memory usage in menchmarks
+  // include memory usage in benchmarks
   mem: true,
 
   // interval for memory sampling
@@ -63,6 +65,3 @@ module.exports = {
 
 }
 ```
-
-**IMPORTANT:** To disable a boolean config declared uptree set it to `null`
-
