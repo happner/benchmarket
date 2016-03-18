@@ -2,9 +2,9 @@
 
 Mocha Benchmark
 
-### Usage
+## Usage
 
-#### Benchmark All Tests
+### Benchmark All Tests
 
 ```javascript
 describe('suite name', function() {
@@ -23,7 +23,7 @@ describe('suite name', function() {
 });
 ```
 
-#### Benchmark Specific Test
+### Benchmark Specific Test
 
 ```javascript
 var bench = require('benchmarket').bench;
@@ -42,7 +42,7 @@ describe('suite name', function() {
 ```
 
 
-### Configure
+## Configure
 
 Create a `.benchmarket.js` file in your home or test directory.
 
@@ -50,7 +50,7 @@ Create a `.benchmarket.js` file in your home or test directory.
 
 **IMPORTANT:** To disable a boolean config declared uptree set it to `null`
 
-#### Config Options
+### Config Options
 
 Shown with defaults.
 
