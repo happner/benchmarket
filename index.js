@@ -1,11 +1,11 @@
-var start, original, decorate, before, after, conf, getCaller;
+var start, original, bench, before, after, conf;
 var config = require('./config');
 
 /**
  * start()
  *
  * Replaces mocha's it() function with another that transparently
- * decorates each test to run encesed inside the benchmarker.
+ * decorates each test to run encased inside the benchmarker.
  *
  */
 
@@ -14,12 +14,11 @@ module.exports.start = function() {
   var original = global.it;
   global.it = function() {
     var args = Array.prototype.slice.call(arguments);
-    return original.call(this, args[0], decorate(args[1]));
+    return original.call(this, args[0], bench(args[1]));
   }
-  // global.it.skip = original.skip.apply(original,);
   global.it.only = function() {
     var args = Array.prototype.slice.call(arguments);
-    return original.only.call(this, args[0], decorate(args[1]));
+    return original.only.call(this, args[0], bench(args[1]));
   }
   global.it.skip = function() {
     var args = Array.prototype.slice.call(arguments);
@@ -27,46 +26,26 @@ module.exports.start = function() {
   }
 }
 
+/**
+ * stop()
+ *
+ * Terminates the benchmarker and restore the original it function
+ *
+ */
 
 module.exports.stop = function() {
   global.it = original;
 }
 
+/**
+ * decorate()
+ *
+ * Decorate per test without overriding mocha's it function
+ *
+ */
 
-before = function(caller, test) {
-  conf = config.load(caller);
-  console.log('BEFORE', test, conf);
-}
-
-after = function(error, test) {
-  if (error) {
-    console.error('ERR:', error);
-  }
-  console.log('AFTER', test);
-}
-
-getCaller = function(skip) {
-  var stack, file, parts, name, result = {};
-  var origPrep = Error.prepareStackTrace;
-  Error.prepareStackTrace = function(e, stack){return stack;}
-  try {
-    stack = Error.apply(this, arguments).stack;
-    stack.shift();
-    stack.shift();
-    stack.shift();
-    stack.shift();
-    file = stack[0].getFileName();
-    result = file;
-  }
-  finally {
-    Error.prepareStackTrace = origPrep;
-    return result;
-  }
-}
-
-module.exports.decorate = decorate = function(testFn) {
-  var match;
-  var caller = getCaller();
+module.exports.bench = bench = function(testFn) {
+  var match, context;
 
   if (testFn) {
     if (match = testFn.toString().match(/\((.*)\)/)) {
@@ -75,9 +54,10 @@ module.exports.decorate = decorate = function(testFn) {
       args = args.replace(/\)/, '');
       if (args.length == 0) {
 
+        // return a substutute test function which calls original
         // running syncronously - no done
         return function() {
-          before(caller, this.test);
+          before(this.test);
           try {
             testFn.call(this);
             after(null, this.test);
@@ -90,19 +70,52 @@ module.exports.decorate = decorate = function(testFn) {
     }
   }
 
+  // return a substutute test function which calls original
   // running asyncronously - with done
   return function(done) {
+    var test = this.test;
     var altDone = function() {
-      after(null, this.test);
+      after(null, test);
       done();
     }
 
-    before(caller, this.test);
+    before(test);
     try {
       testFn.call(this, altDone);
     } catch (e) {
-      after(e, this.test);
+      after(e, test);
       throw e;
     }
   }
 }
+
+/**
+ * before()
+ *
+ * Runs just before the test (it)
+ * but after any mocha befores or beforeAlls
+ *
+ */
+
+before = function(test) {
+  conf = config.load(test.file);
+  console.log('BEFORE', test, conf);
+}
+
+/**
+ * after()
+ *
+ * Runs just after the test (it)
+ * but after any mocha befores or beforeAlls
+ *
+ * NOTE: does not run if the test times out...
+ *
+ */
+
+after = function(error, test) {
+  if (error) {
+    console.error('ERR:', error);
+  }
+  console.log('AFTER', test);
+}
+
