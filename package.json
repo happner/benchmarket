@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/happner/benchmarket/issues"
   },
-  "homepage": "https://github.com/happner/benchmarket#readme"
+  "homepage": "https://github.com/happner/benchmarket#readme",
+  "dependencies": {
+    "connect": "^3.4.1"
+  }
 }
