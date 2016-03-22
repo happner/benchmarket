@@ -1,5 +1,7 @@
 var start, original, bench, before, after, conf;
 var config = require('./config');
+var memory = require('./memory');
+var stats = {};
 
 
 /**
@@ -37,6 +39,7 @@ module.exports.start = function() {
 
 module.exports.stop = function() {
   global.it = original;
+  if (conf.mem) memory.stop(stats, conf);
 }
 
 
@@ -102,7 +105,7 @@ module.exports.bench = bench = function(testFn) {
 
 before = function(test) {
   conf = config.load(test.file);
-  console.log('BEFORE', test, conf);
+  if (conf.mem) memory.start(stats, conf, test);
 }
 
 /**
@@ -116,9 +119,10 @@ before = function(test) {
  */
 
 after = function(error, test) {
+  if (conf.mem) memory.stop(stats, conf, test);
   if (error) {
     console.error('ERR:', error);
   }
-  console.log('AFTER', test);
 }
+
 

@@ -46,7 +46,7 @@ describe('suite name', function() {
 
 Create a `.benchmarket.js` file in your home or test directory.
 
-**IMPORTANT:** The configurer searches up your directory tree, deepest configs override shallower.
+**IMPORTANT:** The configurer searches up your directory tree, deeper configs override shallower.
 
 **IMPORTANT:** To disable a boolean config declared uptree set it to `null`
 
