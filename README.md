@@ -2,7 +2,7 @@
 
 Mocha Benchmark
 
-## Usage
+## Client Usage
 
 ### Benchmark All Tests
 
@@ -65,3 +65,10 @@ module.exports = {
 
 }
 ```
+
+***
+
+## Server Usage
+
+...
+
