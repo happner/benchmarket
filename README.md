@@ -70,5 +70,7 @@ module.exports = {
 
 ## Server Usage
 
-...
-
+```javascript
+# npm install foreman -g
+nf start
+```
