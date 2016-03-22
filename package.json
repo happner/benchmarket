@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/happner/benchmarket#readme",
   "dependencies": {
+    "body-parser": "^1.15.0",
     "connect": "^3.4.1"
   }
 }
