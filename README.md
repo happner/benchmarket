@@ -108,6 +108,7 @@ createdb benchmarket_development
 # if not defaults already works (eg osx dev workstation) # > ALTER ROLE benchmarket WITH PASSWORD 'yourpassword';
 
 node_modules/.bin/db-migrate -e development up
+                                # uses corresponding env in database.json
 
 cp .env.example .env
 vi .env
