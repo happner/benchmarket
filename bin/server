@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* Relay inbound benchmark data into elasticsearch server */
+
 require('dotenv').config();
 
 var API_KEY = process.env.API_KEY || 'xxx';
@@ -11,6 +13,8 @@ var ELASTIC_HOST_3 = process.env.ELASTIC_HOST_3 || "http://localhost:9200";
 
 var connect = require('connect');
 var bodyParser = require('body-parser');
+var Promise = require('bluebird');
+var handleEach;
 
 var elasticsearch = require('elasticsearch');
 var client = new elasticsearch.Client({
@@ -37,11 +41,33 @@ app.use('/benchmarks', function(req, res) {
     return res.end();
   }
 
+  /*
+  {
+    repo: 'happn',
+    file: 'test/test-benchmark/9_permissions_cache_benchmarks.js',
+    test: '9_permissions_cache_benchmark/aa/gg',
+    sample: {
+      type: 'mem',
+      ts: '2016-03-29T12:11:23.451Z',
+      value: {
+        rss: 38760448,
+        heapTotal: 21880928,
+        heapUsed: 14092040
+      }
+    }
+  }
+  */
 
-  console.log(req.body);
-
-  res.statusCode = 201;
-  res.end();
+  Promise.resolve(req.body).map(handleEach, {concurrency: 3})
+  .then(function() {
+    res.statusCode = 201;
+    res.end();
+  })
+  .catch(function(err) {
+    res.statusCode = 500;
+    console.log(err.stack);
+    res.end(err.stack);
+  })
 
 
   // var entry = {
@@ -70,10 +96,12 @@ app.use('/benchmarks', function(req, res) {
   //   }
   // );
 
-
-
 });
 
 app.listen(PORT, IFACE, function() {
   console.log('%s listening %s:%s', new Date(), IFACE, PORT);
 });
+
+handleEach = function(metric) {
+  console.log(metric);
+}
