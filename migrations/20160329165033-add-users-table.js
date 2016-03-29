@@ -17,16 +17,17 @@ exports.up = function(db, callback) {
 
     db.all.bind(db, 'CREATE TABLE users (' +
       'id SERIAL,' +
-      'name TEXT,' +
+      'username TEXT,' +
       'password TEXT,' +
       'api_key TEXT' +
     ')'),
 
-    db.addIndex.bind(db, 'tests', 'tests_name_index_uniq', ['name'], true)
+    db.addIndex.bind(db, 'users', 'users_username_index_uniq', ['username'], true),
+    db.addIndex.bind(db, 'users', 'users_api_key_index_uniq', ['api_key'], true)
 
   ], callback);
 };
 
 exports.down = function(db, callback) {
-  db.dropTable('tests', callback);
+  db.dropTable('users', callback);
 };

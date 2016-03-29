@@ -4,7 +4,7 @@
 
 require('dotenv').config();
 
-var API_KEY = process.env.API_KEY || 'xxx';
+var ROOT_API_KEY = process.env.ROOT_API_KEY || 'xxx';
 var IFACE = process.env.IFACE || '0.0.0.0';
 var PORT = process.env.PORT || 3001;
 
@@ -13,12 +13,18 @@ var PORT = process.env.PORT || 3001;
 // var ELASTIC_HOST_3 = process.env.ELASTIC_HOST_3 || "http://localhost:9200";
 
 var databaseConfig = require('../database')[process.env.NODE_ENV];
+var pg = require('pg');
+var conString = 'postgres://';
 
-console.log('DD', databaseConfig);
+if (databaseConfig.user) {
+  conString += databaseConfig.user +':' + databaseConfig.password + '@'
+}
+conString += (databaseConfig.server || 'localhost') + '/' + databaseConfig.database;
 
 var express = require('express');
 var bodyParser = require('body-parser');
 var Promise = require('bluebird');
+var uuid = require('uuid');
 var storeSample;
 
 // var elasticsearch = require('elasticsearch');
@@ -31,14 +37,84 @@ var app = express();
 app.use(bodyParser.json());
 app.use(express.static('static'));
 
+app.post('/login', function(req, res) {
+  if (!req.body.username || !req.body.password) {
+    return res.sendStatus(400);
+  }
+  pg.connect(conString, function(err, client, done) {
+    if (err) {
+      ////////////////////////////// console.error(err.stack); // could fill disk real fast if >> log file
+      res.statusCode = 500;
+      return res.send(err.stack);
+    }
+
+    client.query('SELECT * FROM users WHERE username = $1 and password = $2',
+      [req.body.username, req.body.password], function(err, result) {
+      done();
+
+      if (err) {
+        /////////////////////////// console.error('error running query', err);
+        res.statusCode = 500;
+        return res.send(err.stack);
+      }
+
+      if (!result.rows[0]) {
+        res.statusCode = 404;
+        return res.send();
+      }
+
+      res.statusCode = 200;
+      res.send(result.rows[0]);
+    });
+  });
+});
 
 
+app.post('/register', function(req, res) {
+  if (typeof req.headers.authorization === 'undefined' || req.headers.authorization !== ROOT_API_KEY) {
+    res.statusCode = 401;
+    return res.end();
+  }
 
+  if (!req.body.username || !req.body.password) {
+    res.statusCode = 400;
+    return res.end();
+  }
 
+  pg.connect(conString, function(err, client, done) {
+    if (err) {
+      ////////////////////////////// console.error(err.stack); // could fill disk real fast if >> log file
+      res.statusCode = 500;
+      return res.send(err.stack);
+    }
+
+    var api_key = uuid.v4();
+
+    client.query('INSERT INTO users(username, password, api_key) VALUES ($1, $2, $3)',
+      [req.body.username, req.body.password, api_key],
+      function(err, result) {
+        done();
+
+        if (err) {
+          /////////////////////////// console.error('error running query', err);
+          res.statusCode = 500;
+          return res.send(err.stack);
+        }
+
+        res.statusCode = 200;
+        res.send({
+          username: req.body.username,
+          password: req.body.password,
+          api_key: api_key
+        })
+
+    });
+  });
+});
 
 app.post('/benchmarks', function(req, res) {
 
-  if (typeof req.headers.authorization === 'undefined' || req.headers.authorization !== API_KEY) {
+  if (typeof req.headers.authorization === 'undefined' || req.headers.authorization !== ROOT_API_KEY) {
     res.statusCode = 401;
     return res.end();
   }

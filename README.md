@@ -28,7 +28,16 @@ describe('suite name', function() {
 To get api_key (for use in tests) and set username and password (for viewing data)
 
 ```bash
-curl https://benchmarket.objective.blue ....
+curl -i -H "Authorization: xxx" \
+        -H "Content-Type: application/json" \
+        -X POST http://localhost:8000/register -d '{
+  "username": "u",
+  "password": "p"
+}'
+### result (keep assigned api_key)
+{"username":"u","password":"p","api_key":"9c572bf0-eca1-4247-8bef-d1df51d42239"}
+
+### Authorization: xxx in above is ROOT_API_KEY as set in .env file
 ```
 
 ## Config (client in tests)
@@ -40,7 +49,7 @@ Place `.benchmarket.js` into your test directory.
 ```js
 module.exports = {
 
-  api_key: 'xxx'
+  api_key: '9c572bf0-eca1-4247-8bef-d1df51d42239', // as from /register
   api_uri: 'http://your.server/benchmarks'
 
   repo: 'name',
@@ -64,17 +73,17 @@ at `/home/me/git/.benchmarket.js`
 ```js
 // This will apply to all git repos nested in /home/me/git/
 module.exports = {
-  api_key: 'xxx',
+  api_key: '9c572bf0-eca1-4247-8bef-d1df51d42239', // as from /register
   api_uri: 'http://your.server/benchmarks',
+  repo: 'none',
 }
 ```
 
 at `/home/me/git/happn/.benchmarket.js`
 ```js
-// This will apply an alternative api_uri but still use the same api_key (from uptree)
+// This will apply an alternative repo but still use the same api_key and api_uri (from uptree)
 // for only the happn repo.
 module.exports = {
-  api_uri: 'http://your.server/benchmarks',
   repo: 'happn',
 }
 ```

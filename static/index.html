@@ -1,8 +1,16 @@
 <html>
     <head>
         <title>benchmarket</title>
+
+        <!-- script src='/js/jquery-2.2.2.min.js'></script -->
         <script src='/js/angular.min.js'></script>
-        <script src='/js/angular-route.min.js'></script>
-        <!-- <link rel='stylesheet' type='text/css' href='/css/...'></link> -->
+        <!-- // <script src='/js/angular-route.min.js'></script> -->
+
+        <script src='/js/directive-login-out.js'></script>
+        <script src='/js/_APP.js'></script>
+
+        <link rel='stylesheet' type='text/css' href='/css/login-out.css'></link>
     </head>
-<body ng-app='benchmarket' ng-view></body>
+<body ng-app='benchmarket'>
+    <login-out></login-out>
+</body>
