@@ -84,6 +84,6 @@ bin/server
 
 ## Notes
 
-* elastic_connect_tenacious, http://localhost:9200/_plugin/hq
-* kibana_connect_tenacious, http://localhost:5601/
+* elastic_connect_tenacious, [http://localhost:9200/_plugin/hq](http://localhost:9200/_plugin/hq)
+* kibana_connect_tenacious, [http://localhost:5601/](http://localhost:5601/)
 
