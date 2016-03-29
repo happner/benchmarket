@@ -4,6 +4,23 @@ Mocha Test Bench Marks
 
 Slapped Together In A Hurry
 
+## Register
+
+To get api_key (for use in tests) and set username and password (for viewing data)
+
+```bash
+curl -i -H "Authorization: xxx" \
+        -H "Content-Type: application/json" \
+        -X POST http://localhost:8000/register -d '{
+  "username": "u",
+  "password": "p"
+}'
+### result (keep assigned api_key)
+{"username":"u","password":"p","api_key":"9c572bf0-eca1-4247-8bef-d1df51d42239"}
+
+### Authorization: xxx in above is ROOT_API_KEY as set in .env file
+```
+
 ## Usage (client in tests)
 
 Use in tests to create benchmark metrics. Currently only memory stats.
@@ -21,23 +38,6 @@ describe('suite name', function() {
   it('test 2', function(done) {});
 
 });
-```
-
-## Register
-
-To get api_key (for use in tests) and set username and password (for viewing data)
-
-```bash
-curl -i -H "Authorization: xxx" \
-        -H "Content-Type: application/json" \
-        -X POST http://localhost:8000/register -d '{
-  "username": "u",
-  "password": "p"
-}'
-### result (keep assigned api_key)
-{"username":"u","password":"p","api_key":"9c572bf0-eca1-4247-8bef-d1df51d42239"}
-
-### Authorization: xxx in above is ROOT_API_KEY as set in .env file
 ```
 
 ## Config (client in tests)
@@ -98,13 +98,14 @@ module.exports = {
 npm install
 
 cp database.json.example database.json
+vi database.json
 
 brew install postgres # and make it run per instructions (manually or as service)
 createdb benchmarket_development
-# if not defaults already wors (eg osx dev workstation) # createuser benchmarket
-# if not defaults already wors (eg osx dev workstation) # su postgres
-# if not defaults already wors (eg osx dev workstation) # psql
-# if not defaults already wors (eg osx dev workstation) # > ALTER ROLE benchmarket WITH PASSWORD 'yourpassword';
+# if not defaults already works (eg osx dev workstation) # createuser benchmarket
+# if not defaults already works (eg osx dev workstation) # su postgres
+# if not defaults already works (eg osx dev workstation) # psql
+# if not defaults already works (eg osx dev workstation) # > ALTER ROLE benchmarket WITH PASSWORD 'yourpassword';
 
 node_modules/.bin/db-migrate -e development up
 
@@ -112,10 +113,4 @@ cp .env.example .env
 vi .env
 bin/server
 ```
-
-
-## Notes
-
-* elastic_connect_tenacious, [http://localhost:9200/_plugin/hq](http://localhost:9200/_plugin/hq)
-* kibana_connect_tenacious, [http://localhost:5601/](http://localhost:5601/)
 
