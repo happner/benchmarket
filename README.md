@@ -2,7 +2,9 @@
 
 Mocha Test Bench Marks
 
-## Usage (client)
+Slapped Together In A Hurry
+
+## Usage (client in tests)
 
 Use in tests to create benchmark metrics. Currently only memory stats.
 
@@ -21,7 +23,15 @@ describe('suite name', function() {
 });
 ```
 
-## Config (client)
+## Register
+
+To get api_key (for use in tests) and set username and password (for viewing data)
+
+```bash
+curl https://benchmarket.objective.blue ....
+```
+
+## Config (client in tests)
 
 ### The config file
 
