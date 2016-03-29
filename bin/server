@@ -37,31 +37,37 @@ app.use('/benchmarks', function(req, res) {
     return res.end();
   }
 
-  var entry = {
-    index: 'benchmark-' + req.body.repo,
-    type: req.body.type,
-    body: {
-      file: req.body.file,
-      ts: req.body.ts,
-      rss: req.body.rss,
-      heapTotal: req.body.heapTotal,
-      heapUsed: req.body.heapUsed,
-    }
-  }
 
-  return client.create(entry).then(
-    function(response) {
-      res.statusCode = 201;
-      res.end(JSON.stringify(response));
-    },
-    function(error) {
-      res.statusCode = 500;
-      res.end(JSON.stringify({
-        name: error.name,
-        message: error.message,
-      }));
-    }
-  );
+
+  res.statusCode = 201;
+  res.end();
+
+
+  // var entry = {
+  //   index: 'benchmark-' + req.body.repo,
+  //   type: req.body.type,
+  //   body: {
+  //     file: req.body.file,
+  //     ts: req.body.ts,
+  //     rss: req.body.rss,
+  //     heapTotal: req.body.heapTotal,
+  //     heapUsed: req.body.heapUsed,
+  //   }
+  // }
+
+  // return client.create(entry).then(
+  //   function(response) {
+  //     res.statusCode = 201;
+  //     res.end(JSON.stringify(response));
+  //   },
+  //   function(error) {
+  //     res.statusCode = 500;
+  //     res.end(JSON.stringify({
+  //       name: error.name,
+  //       message: error.message,
+  //     }));
+  //   }
+  // );
 
 
 
