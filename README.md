@@ -76,8 +76,18 @@ module.exports = {
 ## Server Usage
 
 ```bash
+npm install
+
+cp database.json.example database.json
+
 brew install postgres # and make it run per instructions (manually or as service)
 createdb benchmarket_development
+# if not defaults already wors (eg osx dev workstation) # createuser benchmarket
+# if not defaults already wors (eg osx dev workstation) # su postgres
+# if not defaults already wors (eg osx dev workstation) # psql
+# if not defaults already wors (eg osx dev workstation) # > ALTER ROLE benchmarket WITH PASSWORD 'yourpassword';
+
+node_modules/.bin/db-migrate -e development up
 
 cp .env.example .env
 vi .env
