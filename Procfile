@@ -1,1 +1,1 @@
-web: node lib/server
+web: bin/server

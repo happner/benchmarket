@@ -75,7 +75,8 @@ module.exports = {
 
 ## Server Usage
 
-```javascript
-# npm install foreman -g
-nf start
+```bash
+cp .env.example .env
+vi .env
+bin/server
 ```
