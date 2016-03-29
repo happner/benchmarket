@@ -16,7 +16,7 @@ var databaseConfig = require('../database')[process.env.NODE_ENV];
 
 console.log('DD', databaseConfig);
 
-var connect = require('connect');
+var express = require('express');
 var bodyParser = require('body-parser');
 var Promise = require('bluebird');
 var storeSample;
@@ -26,9 +26,10 @@ var storeSample;
 //   hosts: [ELASTIC_HOST_1, ELASTIC_HOST_2, ELASTIC_HOST_3]
 // });
 
-var app = connect();
+var app = express();
 
 app.use(bodyParser.json());
+app.use(express.static('static'));
 
 app.use('/benchmarks', function(req, res) {
   if (req.method !== 'POST') {

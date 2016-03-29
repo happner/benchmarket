@@ -31,7 +31,7 @@ exports.up = function(db, callback) {
     db.addIndex.bind(db, 'tests', 'tests_last_run_global_index', ['last_run_global'], false),
     db.addIndex.bind(db, 'tests', 'tests_last_run_at_index', ['last_run_at'], false),
 
-    ], callback);
+  ], callback);
 };
 
 exports.down = function(db, callback) {
