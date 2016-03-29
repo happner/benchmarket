@@ -13,7 +13,7 @@ describe('suite name', function() {
 
   after(require('benchmarket').stop);
 
-  // all tests are transparently wrapped in benchmarkek function
+  // all tests are transparently wrapped in benchmarket function
 
   it('test 1', function(done) {});
   it('test 2', function(done) {});
@@ -80,3 +80,10 @@ cp .env.example .env
 vi .env
 bin/server
 ```
+
+
+## Notes
+
+* elastic_connect_tenacious, http://localhost:9200/_plugin/hq
+* kibana_connect_tenacious, http://localhost:5601/
+
