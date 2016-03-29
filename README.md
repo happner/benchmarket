@@ -33,6 +33,8 @@ module.exports = {
   api_key: 'xxx'
   api_uri: 'http://your.server/benchmarks'
 
+  repo: 'name',
+
   // include memory usage in benchmarks
   mem: true,
   mem_interval: 5000,
@@ -52,8 +54,8 @@ at `/home/me/git/.benchmarket.js`
 ```js
 // This will apply to all git repos nested in /home/me/git/
 module.exports = {
-  api_key: 'xxx'
-  api_uri: 'http://your.server/benchmarks'
+  api_key: 'xxx',
+  api_uri: 'http://your.server/benchmarks',
 }
 ```
 
@@ -62,7 +64,8 @@ at `/home/me/git/happn/.benchmarket.js`
 // This will apply an alternative api_uri but still use the same api_key (from uptree)
 // for only the happn repo.
 module.exports = {
-  api_uri: 'http://your.server/benchmarks'
+  api_uri: 'http://your.server/benchmarks',
+  repo: 'happn',
 }
 ```
 
