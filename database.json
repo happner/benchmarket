@@ -1,0 +1,18 @@
+{
+    "test": {
+        "driver": "pg",
+        "user": {"ENV": "USER"},
+        "database": "benchmarket_test"
+    },
+    "development": {
+        "driver": "pg",
+        "database": "benchmarket_development"
+    },
+    "production": {
+        "server": "XXX.XXX.XXX.XXX",
+        "driver": "pg",
+        "user": "XXXXXXXXXXXX",
+        "password": "XXXXXXXXXXXX",
+        "database": "XXXXXXXXXXXX"
+    }
+}

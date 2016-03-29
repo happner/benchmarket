@@ -7,19 +7,24 @@ require('dotenv').config();
 var API_KEY = process.env.API_KEY || 'xxx';
 var IFACE = process.env.IFACE || '0.0.0.0';
 var PORT = process.env.PORT || 3001;
-var ELASTIC_HOST_1 = process.env.ELASTIC_HOST_1 || "http://localhost:9200";
-var ELASTIC_HOST_2 = process.env.ELASTIC_HOST_2 || "http://localhost:9200";
-var ELASTIC_HOST_3 = process.env.ELASTIC_HOST_3 || "http://localhost:9200";
+
+// var ELASTIC_HOST_1 = process.env.ELASTIC_HOST_1 || "http://localhost:9200";
+// var ELASTIC_HOST_2 = process.env.ELASTIC_HOST_2 || "http://localhost:9200";
+// var ELASTIC_HOST_3 = process.env.ELASTIC_HOST_3 || "http://localhost:9200";
+
+var databaseConfig = require('../database')[process.env.NODE_ENV];
+
+console.log('DD', databaseConfig);
 
 var connect = require('connect');
 var bodyParser = require('body-parser');
 var Promise = require('bluebird');
-var handleEach;
+var storeSample;
 
-var elasticsearch = require('elasticsearch');
-var client = new elasticsearch.Client({
-  hosts: [ELASTIC_HOST_1, ELASTIC_HOST_2, ELASTIC_HOST_3]
-});
+// var elasticsearch = require('elasticsearch');
+// var client = new elasticsearch.Client({
+//   hosts: [ELASTIC_HOST_1, ELASTIC_HOST_2, ELASTIC_HOST_3]
+// });
 
 var app = connect();
 
@@ -41,24 +46,7 @@ app.use('/benchmarks', function(req, res) {
     return res.end();
   }
 
-  /*
-  {
-    repo: 'happn',
-    file: 'test/test-benchmark/9_permissions_cache_benchmarks.js',
-    test: '9_permissions_cache_benchmark/aa/gg',
-    sample: {
-      type: 'mem',
-      ts: '2016-03-29T12:11:23.451Z',
-      value: {
-        rss: 38760448,
-        heapTotal: 21880928,
-        heapUsed: 14092040
-      }
-    }
-  }
-  */
-
-  Promise.resolve(req.body).map(handleEach, {concurrency: 3})
+  Promise.resolve(req.body).map(storeSample, {concurrency: 1})
   .then(function() {
     res.statusCode = 201;
     res.end();
@@ -78,7 +66,7 @@ app.use('/benchmarks', function(req, res) {
   //     ts: req.body.ts,
   //     rss: req.body.rss,
   //     heapTotal: req.body.heapTotal,
-  //     heapUsed: req.body.heapUsed,
+  //     heapUsed: req.body.heapUsed
   //   }
   // }
 
@@ -102,6 +90,48 @@ app.listen(PORT, IFACE, function() {
   console.log('%s listening %s:%s', new Date(), IFACE, PORT);
 });
 
-handleEach = function(metric) {
-  console.log(metric);
-}
+
+// abandon elastic for metric storage
+//
+// storeSample = function(metric) {
+//   // console.log(metric);
+//   /*
+//   {
+//     repo: 'happn',
+//     file: 'test/test-benchmark/9_permissions_cache_benchmarks.js',
+//     test: '9_permissions_cache_benchmark/aa/gg',
+//     sample: {
+//       type: 'mem',
+//       ts: '2016-03-29T12:11:23.451Z',
+//       value: {
+//         rss: 38760448,
+//         heapTotal: 21880928,
+//         heapUsed: 14092040
+//       }
+//     }
+//   }
+//   */
+
+//   if (metric.sample.type !== 'mem') return;
+
+//   var index = 'benchmarket-' + metric.repo + '-' + metric.sample.type;
+//   var type = metric.test.replace(/\//, '--');
+
+//   var entry = {
+//     index: index,
+//     type: type,
+//     body: {
+//       ts: metric.sample.ts,
+//       rss: metric.sample.rss,
+//     }
+//   }
+
+//   return client.create(entry)
+
+//   // // because value contains 3 samples,
+//   // // but each need to go into separate record
+//   // return PRomise.resolve()
+
+
+// }
+

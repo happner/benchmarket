@@ -76,6 +76,9 @@ module.exports = {
 ## Server Usage
 
 ```bash
+brew install postgres # and make it run per instructions (manually or as service)
+createdb benchmarket_development
+
 cp .env.example .env
 vi .env
 bin/server
