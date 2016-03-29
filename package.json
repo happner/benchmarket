@@ -19,6 +19,7 @@
   "dependencies": {
     "body-parser": "^1.15.0",
     "connect": "^3.4.1",
-    "elasticsearch": "^10.1.3"
+    "elasticsearch": "^10.1.3",
+    "request": "^2.69.0"
   }
 }
