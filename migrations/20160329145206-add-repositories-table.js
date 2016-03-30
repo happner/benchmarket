@@ -17,15 +17,15 @@ exports.up = function(db, callback) {
 
     db.all.bind(db, 'CREATE TABLE repositories (' +
       'id SERIAL,' +
-      'created_at TIMESTAMP WITHOUT TIME ZONE,' +
+      'created_at TIMESTAMP WITH TIME ZONE,' +
       'name TEXT,' +
-      'last_run_global TEXT,' +
-      'last_run_at TIMESTAMP WITHOUT TIME ZONE' +
+      // 'last_run_global TEXT,' +
+      'last_run_at TIMESTAMP WITH TIME ZONE' +
     ')'),
 
     db.addIndex.bind(db, 'repositories', 'repositories_created_at_index', ['created_at'], false),
     db.addIndex.bind(db, 'repositories', 'repositories_name_index_uniq', ['name'], true),
-    db.addIndex.bind(db, 'repositories', 'repositories_last_run_global_index', ['last_run_global'], false),
+    // db.addIndex.bind(db, 'repositories', 'repositories_last_run_global_index', ['last_run_global'], false),
     db.addIndex.bind(db, 'repositories', 'repositories_last_run_at_index', ['last_run_at'], false),
 
   ], callback);

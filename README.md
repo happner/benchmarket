@@ -4,6 +4,8 @@ Mocha Test Bench Marks
 
 Slapped Together In A Hurry
 
+NB: No Organisations, repositories and users tables need reference to such a thing to support multiple organisations
+
 ## Register
 
 To get api_key (for use in tests) and set username and password (for viewing data)
