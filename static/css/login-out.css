@@ -1,8 +1,9 @@
-.collapsed {
+.collapsed_login {
+    position: absolute;
     top: 0px;
-    left: 0px;
+    /*left: 0px;
     width: 0px;
-    height: 0px;
+    height: 0px;*/
     visibility: hidden;
 }
 
@@ -26,7 +27,7 @@
 .login-panel {
     border: 1px solid grey;
     width: 250px;
-    height: 139px;
+    height: 138px;
     margin-left: auto;
     margin-right: auto;
     margin-top: 110px;

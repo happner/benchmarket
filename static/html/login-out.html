@@ -1,8 +1,8 @@
-<div class='logout-panel' ng-class='{collapsed: !isLoggedIn}'>
-    <button class='logout-button-input'>logout {{username}}</button>
+<div class='logout-panel' ng-class='{collapsed_login: !isLoggedIn()}'>
+    <button class='logout-button-input' ng-click='logout()'>logout {{username}}</button>
 </div>
 
-<div class='login-panel high_shadow' ng-class='{collapsed: isLoggedIn}'>
+<div class='login-panel high_shadow' ng-class='{collapsed_login: isLoggedIn()}'>
     <input type='text' class='login-text-input' ng-model='username' placeholder='username'></input>
     <input type='password' class='login-text-input' ng-model='password' placeholder='password'></input>
     <button class='login-button-input' ng-click='login()' ng-disabled='!username || !password'>login</button>

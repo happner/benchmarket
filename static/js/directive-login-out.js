@@ -1,4 +1,4 @@
-LoginOut = ['$http', function($http) {
+LoginOut = ['$http', '$rootScope', 'clientSession', function($http, $rootScope, clientSession) {
   return {
     restrict: 'E',
 
@@ -6,13 +6,10 @@ LoginOut = ['$http', function($http) {
 
     link: function(scope, elem, attrs) {
 
-      localStorage.benchmarket = localStorage.benchmarket || {}
+      scope.isLoggedIn = clientSession.isLoggedIn;
 
-      if (localStorage.benchmarket.login) {
-        scope.isLoggedIn = true;
-      } else {
-        scope.isLoggedIn = false;
-      }
+      scope.username = 'u';
+      scope.password = 'p';
 
       scope.login = function() {
         if (scope.username.length == 0 || scope.password.length == 0) return;
@@ -22,13 +19,24 @@ LoginOut = ['$http', function($http) {
           password: scope.password,
         }).then(
           function(res) {
-            console.log('RES', res);
+            if (res.status === 200) {
+              clientSession.login(res.data.id, res.data.username, res.data.api_key);
+              return;
+            }
+            alert('bad username or password');
           },
           function(err) {
-            console.error('ERR', err);
+            if (err.status === 404) {
+              alert('bad username or password');
+              return;
+            }
+            alert('unexpected error (see browser log)');
+            console.error(err);
           }
         );
       }
+
+      scope.logout = clientSession.logout;
 
     }
   }

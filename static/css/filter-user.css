@@ -1,0 +1,23 @@
+.collapsed-filter-user {
+    position: absolute;
+    top: 0px;
+    /*left: 0px;
+    width: 0px;
+    height: 0px;*/
+    visibility: hidden;
+}
+
+.filter-user-panel {
+    width: 400px;
+    /*height: 15px;*/
+    /*border: 1px solid black;*/
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    vertical-align: center;
+    height: auto;
+}
+
+.filter-user-select {
+    width: 150px;
+}

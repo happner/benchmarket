@@ -1,59 +1,42 @@
 #!/usr/bin/env node
 
-/* Relay inbound benchmark data into elasticsearch server */
-
 require('dotenv').config();
 
 var ROOT_API_KEY = process.env.ROOT_API_KEY || 'xxx';
 var IFACE = process.env.IFACE || '0.0.0.0';
 var PORT = process.env.PORT || 3001;
 
-// var ELASTIC_HOST_1 = process.env.ELASTIC_HOST_1 || "http://localhost:9200";
-// var ELASTIC_HOST_2 = process.env.ELASTIC_HOST_2 || "http://localhost:9200";
-// var ELASTIC_HOST_3 = process.env.ELASTIC_HOST_3 || "http://localhost:9200";
-
-var databaseConfig = require('../database')[process.env.NODE_ENV];
-var pg = require('pg');
-var conString = 'postgres://';
-
-if (databaseConfig.user) {
-  conString += databaseConfig.user +':' + databaseConfig.password + '@'
-}
-conString += (databaseConfig.server || 'localhost') + '/' + databaseConfig.database;
-
 var express = require('express');
 var bodyParser = require('body-parser');
 var Promise = require('bluebird');
 var uuid = require('uuid');
-var storeMetric, updateRepository, updateTestfile, updateTest;
 
-// var elasticsearch = require('elasticsearch');
-// var client = new elasticsearch.Client({
-//   hosts: [ELASTIC_HOST_1, ELASTIC_HOST_2, ELASTIC_HOST_3]
-// });
+var authenticated = require('../lib/server/authenticated');
+var database = require('../lib/server/database');
+var metric = require('../lib/server/metric');
 
 var app = express();
 
 app.use(bodyParser.json());
 app.use(express.static('static'));
 
+app.listen(PORT, IFACE, function() {
+  console.log('%s listening %s:%s', new Date(), IFACE, PORT);
+});
+
+
 app.post('/login', function(req, res) {
   if (!req.body.username || !req.body.password) {
     return res.sendStatus(400);
   }
-  pg.connect(conString, function(err, conn, done) {
-    if (err) {
-      ////////////////////////////// console.error(err.stack); // could fill disk real fast if >> log file
-      res.statusCode = 500;
-      return res.send(err.stack);
-    }
+  database(res, function(conn, done) {
 
     conn.query('SELECT * FROM users WHERE username = $1 and password = $2',
       [req.body.username, req.body.password], function(err, result) {
       done();
 
       if (err) {
-        /////////////////////////// console.error('error running query', err);
+        console.error('error running query', err);
         res.statusCode = 500;
         return res.send(err.stack);
       }
@@ -64,7 +47,11 @@ app.post('/login', function(req, res) {
       }
 
       res.statusCode = 200;
-      res.send(result.rows[0]);
+      res.send({
+        id: result.rows[0].id,
+        api_key: result.rows[0].api_key,
+        username: result.rows[0].username
+      });
     });
   });
 });
@@ -81,13 +68,7 @@ app.post('/register', function(req, res) {
     return res.end();
   }
 
-  pg.connect(conString, function(err, conn, done) {
-    if (err) {
-      ////////////////////////////// console.error(err.stack); // could fill disk real fast if >> log file
-      res.statusCode = 500;
-      return res.send(err.stack);
-    }
-
+  database(res, function(conn, done) {
     var api_key = uuid.v4();
 
     conn.query('INSERT INTO users(username, password, api_key) VALUES ($1, $2, $3)',
@@ -96,7 +77,7 @@ app.post('/register', function(req, res) {
         done();
 
         if (err) {
-          /////////////////////////// console.error('error running query', err);
+          console.error('error running query', err.stack);
           res.statusCode = 500;
           return res.send(err.stack);
         }
@@ -113,310 +94,100 @@ app.post('/register', function(req, res) {
 });
 
 
-app.post('/benchmarks', function(req, res) {
-  if (typeof req.headers.authorization === 'undefined') {
-    res.statusCode = 401;
-    return res.end();
-  }
-
-  pg.connect(conString, function(err, conn, done) {
-    if (err) {
-      ////////////////////////////// console.error(err.stack); // could fill disk real fast if >> log file
-      res.statusCode = 500;
-      return res.send(err.stack);
-    }
-
-    conn.query('SELECT id FROM users WHERE api_key = $1',
-      [req.headers.authorization],
-      function(err, result) {
-        if (err) {
-          /////////////////////////// console.error('error running query', err);
-          done();
-          res.statusCode = 500;
-          return res.send(err.stack);
-        }
-
-        if (result.rows.length !== 1) {
-          done();
-          res.statusCode = 401;
-          return res.send();
-        }
-
-        // multiple metrics arrive at /benchmarks in big array
-        // - process all with promise map
-
-        Promise.resolve(req.body).map(
-          storeMetric({
-            user: result.rows[0],
-            conn: conn
-          }),
-          {concurrency: 1}
-        ).then(function() {
-          res.statusCode = 201;
-          done();
-          res.end();
-        }).catch(function(err) {
-          res.statusCode = 500;
-          console.error('error in /benchmarks', err.stack);
-          res.end(err.stack);
-          done();
-        });
-    });
+app.post('/benchmarks', authenticated(function(req, res, user, conn, done) {
+  Promise.resolve(req.body).map(
+    metric.store({
+      user: user,
+      conn: conn
+    }),
+    {concurrency: 1}
+  )
+  .then(function() {
+    res.statusCode = 201;
+    done();
+    res.end();
+  })
+  .catch(function(err) {
+    res.statusCode = 500;
+    console.error('error in /benchmarks', err.stack);
+    res.end(err.stack);
+    done();
   });
-});
-
-app.listen(PORT, IFACE, function() {
-  console.log('%s listening %s:%s', new Date(), IFACE, PORT);
-});
+}));
 
 
-storeMetric = function(params) {
-  var user = params.user;
-  var conn = params.conn;
-  return function(metric) {
+app.get('/repos', authenticated(function(req, res, user, conn, done) {
 
-    // console.log(metric);
-    /*
-    {
-      repo: 'happn',
-      file: 'test/test-benchmark/9_permissions_cache_benchmarks.js',
-      test: '9_permissions_cache_benchmark/aa/gg',
-      sample: {
-        name: 'mem',
-        type: 'intr',
-        ts: '2016-03-29T12:11:23.451Z',
-        value: {
-          rss: 38760448,
-          heapTotal: 21880928,
-          heapUsed: 14092040
-        }
-      }
-    }
-    */
+  if (typeof req.query.whose === 'undefined' || req.query.whose === '-2')
+    // list everyone's repositories (the default)
+    conn.query('SELECT id, name FROM repositories', [], function(err, result) {
+      done();
 
-    var repoRow, testfileRow, testRow;
-
-
-
-    return Promise.resolve() ////////////// TODO, transaction
-
-    .then(function() {
-      return updateRepository(user, conn, metric)
-    })
-
-    .then(function(repo) {
-      repoRow = repo;
-      return updateTestfile(user, conn, metric, repoRow);
-    })
-
-    .then(function(testfile) {
-      testfileRow = testfile;
-      return updateTest(user, conn, metric, repoRow, testfileRow);
-    })
-
-    .then(function(test) {
-      testRow = test;
-      console.log(repoRow, testfileRow, testRow);
-    })
-
-  }
-}
-
-
-updateRepository = function(user, conn, metric) {
-  return new Promise(function(resolve, reject) {
-                                             // missing WHERE organisation...
-    conn.query('SELECT id FROM repositories WHERE name = $1',
-      [metric.repo],
-      function(err, repoResult) {
-      if (err) return reject(err);
-
-      if (repoResult.rows.length === 0) {
-        return conn.query('INSERT INTO repositories (created_at, name, last_run_at) VALUES ($1, $2, $3)',
-          [new Date(), metric.repo, new Date(metric.sample.ts)],
-          function(err, result) {
-            if (err) return reject(err);
-
-            conn.query('SELECT id FROM repositories WHERE name = $1',
-              [metric.repo],
-              function(err, result) {
-                if (err) return reject(err);
-                resolve(result.rows[0]);
-              });
-          });
+      if (err) {
+        console.error('error running query', err.stack);
+        res.statusCode = 500;
+        return res.send(err.stack);
       }
 
-      return conn.query('UPDATE repositories SET last_run_at = $1 WHERE id = $2',
-        [new Date(metric.sample.ts), repoResult.rows[0].id],
-        function(err, result) {
-           if (err) return reject(err);
-           resolve(repoResult.rows[0]);
-        });
+      res.statusCode = 200;
+      res.send(result.rows);
     });
-  });
-}
 
+  else if (req.query.whose === '-1') {
+    // list only my repositories
+    conn.query(
+      'SELECT DISTINCT repositories.id, repositories.name ' + // distinct??
+      'FROM repositories ' +
+      'INNER JOIN runs ' +
+      'ON repositories.id = runs.repositories_id ' +
+      'AND runs.users_id = $1',
+    [user.id], function(err, result) {
+      done();
 
-updateTestfile = function(user, conn, metric, repoRow) {
-  return new Promise(function(resolve, reject) {
-    conn.query('SELECT id FROM testfiles WHERE repositories_id = $1 AND name = $2',
-      [repoRow.id, metric.file],
-      function(err, testrowResult) {
-        if (err) return reject(err);
+      if (err) {
+        console.error('error running query', err.stack);
+        res.statusCode = 500;
+        return res.send(err.stack);
+      }
 
-        if (testrowResult.rows.length === 0) {
-          return conn.query('INSERT INTO testfiles (repositories_id, created_at, name, last_run_at) VALUES ($1, $2, $3, $4)',
-            [repoRow.id, new Date(), metric.file, new Date(metric.sample.ts)],
-            function(err, result) {
-              if (err) return reject(err);
+      res.statusCode = 200;
+      res.send(result.rows);
 
-              conn.query('SELECT id FROM testfiles WHERE repositories_id = $1 AND name = $2',
-                [repoRow.id, metric.file],
-                function(err, result) {
-                  if (err) return reject(err);
-                  resolve(result.rows[0])
+    });
+  } else if (req.query.whose === '0') {
+    // directly to latest run
+    conn.query(
+      'SELECT DISTINCT ' +
+        'repositories.id, ' +
+        'repositories.name, ' +
+        'runs.run_ref ' +
+      'FROM repositories ' +
+      'INNER JOIN runs ' +
+      'ON repositories.id = runs.repositories_id ' +
+      'AND runs.id IN (' +
+        'select id from runs where users_id = $1 order by created_at desc limit 1' +
+      ')',
+    [user.id], function(err, result) {
+      done();
 
-                });
-            });
-        }
+      if (err) {
+        console.error('error running query', err.stack);
+        res.statusCode = 500;
+        return res.send(err.stack);
+      }
 
-        return conn.query('UPDATE testfiles SET last_run_at = $1 WHERE id = $2',
-          [new Date(metric.sample.ts), testrowResult.rows[0].id],
-          function(err, result) {
-            if (err) return reject(err);
-            resolve(testrowResult.rows[0]);
-          });
-      });
-  });
-}
+      res.statusCode = 200;
+      res.send(result.rows);
 
-updateTest = function(user, conn, metric, repoRow, testfileRow) {
-  return new Promise(function(resolve, reject) {
-    conn.query('SELECT id FROM tests WHERE testfiles_id = $1 AND name = $2',
-      [testfileRow.id, metric.test],
-      function(err, testResult) {
-        if (err) return reject(err);
+    })
+  } else {
 
-        if (testResult.rows.length === 0) {
-          return conn.query('INSERT INTO tests (testfiles_id, created_at, name, last_run_at) VALUES ($1, $2, $3, $4)',
-            [testfileRow.id, new Date(), metric.test, new Date(metric.sample.ts)],
-            function(err, result) {
-              if (err) return reject(err);
+    // per user id not implemented
 
-              conn.query('SELECT id FROM tests WHERE testfiles_id = $1 AND name = $2',
-                [testfileRow.id, metric.test],
-                function(err, result) {
-                  if (err) return reject(err);
-                  resolve(result.rows[0])
-
-                });
-            });
-        }
-
-        return conn.query('UPDATE tests SET last_run_at = $1 WHERE id = $2',
-          [new Date(metric.sample.ts), testResult.rows[0].id],
-          function(err, result) {
-            if (err) return reject(err);
-            resolve(testResult.rows[0]);
-          });
-      });
-  });
-}
+  }
 
 
 
-//   if (typeof req.headers.authorization === 'undefined' || req.headers.authorization !== ROOT_API_KEY) {
-//     res.statusCode = 401;
-//     return res.end();
-//   }
 
-//   if (Object.keys(req.body).length == 0) {
-//     res.statusCode = 400;
-//     return res.end();
-//   }
-
-//   Promise.resolve(req.body).map(storeSample, {concurrency: 1})
-//   .then(function() {
-//     res.statusCode = 201;
-//     res.end();
-//   })
-//   .catch(function(err) {
-//     res.statusCode = 500;
-//     console.log(err.stack);
-//     res.end(err.stack);
-//   })
-
-
-//   // var entry = {
-//   //   index: 'benchmark-' + req.body.repo,
-//   //   type: req.body.type,
-//   //   body: {
-//   //     file: req.body.file,
-//   //     ts: req.body.ts,
-//   //     rss: req.body.rss,
-//   //     heapTotal: req.body.heapTotal,
-//   //     heapUsed: req.body.heapUsed
-//   //   }
-//   // }
-
-//   // return client.create(entry).then(
-//   //   function(response) {
-//   //     res.statusCode = 201;
-//   //     res.end(JSON.stringify(response));
-//   //   },
-//   //   function(error) {
-//   //     res.statusCode = 500;
-//   //     res.end(JSON.stringify({
-//   //       name: error.name,
-//   //       message: error.message,
-//   //     }));
-//   //   }
-//   // );
-
-// });
-
-
-// abandon elastic for metric storage
-//
-// storeSample = function(metric) {
-//   // console.log(metric);
-//   /*
-//   {
-//     repo: 'happn',
-//     file: 'test/test-benchmark/9_permissions_cache_benchmarks.js',
-//     test: '9_permissions_cache_benchmark/aa/gg',
-//     sample: {
-//       type: 'mem',
-//       ts: '2016-03-29T12:11:23.451Z',
-//       value: {
-//         rss: 38760448,
-//         heapTotal: 21880928,
-//         heapUsed: 14092040
-//       }
-//     }
-//   }
-//   */
-
-//   if (metric.sample.type !== 'mem') return;
-
-//   var index = 'benchmarket-' + metric.repo + '-' + metric.sample.type;
-//   var type = metric.test.replace(/\//, '--');
-
-//   var entry = {
-//     index: index,
-//     type: type,
-//     body: {
-//       ts: metric.sample.ts,
-//       rss: metric.sample.rss,
-//     }
-//   }
-
-//   return client.create(entry)
-
-//   // // because value contains 3 samples,
-//   // // but each need to go into separate record
-//   // return PRomise.resolve()
-
-
-// }
+}));
 

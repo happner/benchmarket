@@ -1,0 +1,5 @@
+<div class='filter-user-panel' ng-class='{"collapsed-filter-user": !isLoggedIn()}'>
+    view...
+    <select class='filter-user-select' ng-change='applyUserFilter()' ng-model='filterUser' ng-options='filterUser.name for filterUser in filterUserSelection'></select>
+    ...data
+</div>
