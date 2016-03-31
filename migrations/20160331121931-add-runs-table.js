@@ -20,7 +20,7 @@ exports.up = function(db, callback) {
       'run_ref TEXT,' +
       'users_id INTEGER,' +
       'repositories_id INTEGER,' +
-      'created_at TIMESTAMP WITH TIME ZONE' +
+      'created_at TIMESTAMP WITHOUT TIME ZONE' +
     ')'),
 
     db.addIndex.bind(db, 'runs', 'runs_run_ref_index_uniq', ['run_ref'], true),

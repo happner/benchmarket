@@ -18,10 +18,10 @@ exports.up = function(db, callback) {
     db.all.bind(db, 'CREATE TABLE testfiles (' +
       'id SERIAL,' +
       'repositories_id INTEGER,' +
-      'created_at TIMESTAMP WITH TIME ZONE,' +
+      'created_at TIMESTAMP WITHOUT TIME ZONE,' +
       'name TEXT,' +
       // 'last_run_global TEXT,' +
-      'last_run_at TIMESTAMP WITH TIME ZONE' +
+      'last_run_at TIMESTAMP WITHOUT TIME ZONE' +
     ')'),
 
     db.addIndex.bind(db, 'testfiles', 'testfiles_repositories_id_index', ['repositories_id'], false),

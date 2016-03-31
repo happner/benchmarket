@@ -17,10 +17,10 @@ exports.up = function(db, callback) {
 
     db.all.bind(db, 'CREATE TABLE repositories (' +
       'id SERIAL,' +
-      'created_at TIMESTAMP WITH TIME ZONE,' +
+      'created_at TIMESTAMP WITHOUT TIME ZONE,' +
       'name TEXT,' +
       // 'last_run_global TEXT,' +
-      'last_run_at TIMESTAMP WITH TIME ZONE' +
+      'last_run_at TIMESTAMP WITHOUT TIME ZONE' +
     ')'),
 
     db.addIndex.bind(db, 'repositories', 'repositories_created_at_index', ['created_at'], false),
