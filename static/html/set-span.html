@@ -1,0 +1,17 @@
+<div class='set-span-panel'>
+    <div class='span-option' ng-class='{"collapse-set-span": !isLoggedIn(), "highlight-set-span": hoverSetHour || setSpan == "hour"}'
+         ng-mouseenter='hoverSetHour=true' ng-mouseout='hoverSetHour=false'
+         ng-click='setSpan = "hour"'>hour</div>
+    <div class='span-option' ng-class='{"collapse-set-span": !isLoggedIn(), "highlight-set-span": hoverSetDay || setSpan == "day"}'
+         ng-mouseenter='hoverSetDay=true' ng-mouseout='hoverSetDay=false'
+         ng-click='setSpan = "day"'>day</div>
+    <div class='span-option' ng-class='{"collapse-set-span": !isLoggedIn(), "highlight-set-span": hoverSetWeek || setSpan == "week"}'
+         ng-mouseenter='hoverSetWeek=true' ng-mouseout='hoverSetWeek=false'
+         ng-click='setSpan = "week"'>week</div>
+    <div class='span-option' ng-class='{"collapse-set-span": !isLoggedIn(), "highlight-set-span": hoverSetMonth || setSpan == "month"}'
+         ng-mouseenter='hoverSetMonth=true' ng-mouseout='hoverSetMonth=false'
+         ng-click='setSpan = "month"'>month</div>
+    <div class='span-option' ng-class='{"collapse-set-span": !isLoggedIn(), "highlight-set-span": hoverSetYear || setSpan == "year"}'
+         ng-mouseenter='hoverSetYear=true' ng-mouseout='hoverSetYear=false'
+         ng-click='setSpan = "year"'>year</div>
+</div>

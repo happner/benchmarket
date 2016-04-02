@@ -1,0 +1,32 @@
+.metrics-hidden {
+    visibility: hidden;
+    position: absolute;
+    top: 0px;
+    height: 0px;
+}
+
+.metrics-panel {
+    margin-left: 20px;
+    margin-top: 7px;
+    margin-bottom: 7px;
+    height: auto;
+}
+
+.metrics-name {
+    font-size: 12px;
+    width: 100%;
+    margin: 3px;
+}
+
+.metrics-highlight {
+    background-color: #dddddd;
+    cursor: pointer;
+}
+
+.metrics-graph {
+    /*border: 1px solid grey;*/
+    height: 30px;
+    /*margin-bottom: 10px;*/
+    height: auto;
+    font-size: 10px;
+}

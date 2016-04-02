@@ -116,78 +116,218 @@ app.post('/benchmarks', authenticated(function(req, res, user, conn, done) {
 }));
 
 
+app.get('/users', authenticated(function(req, res, user, conn, done) {
+  conn.query('SELECT id, username FROM users ORDER BY username', function(err, result) {
+    done();
+
+    if (err) {
+      console.error('error running query', err.stack);
+      res.statusCode = 500;
+      return res.send(err.stack);
+    }
+
+    res.statusCode = 200;
+    res.send(result.rows);
+  })
+}));
+
+
 app.get('/repos', authenticated(function(req, res, user, conn, done) {
 
-  if (typeof req.query.whose === 'undefined' || req.query.whose === '-2')
-    // list everyone's repositories (the default)
-    conn.query('SELECT id, name FROM repositories', [], function(err, result) {
-      done();
+  conn.query(
+    'SELECT DISTINCT repositories.id, repositories.name ' + // distinct??
+    'FROM repositories ' +
+    'INNER JOIN runs ' +
+    'ON repositories.id = runs.repositories_id ' +
+    'AND runs.users_id = $1',
+  [req.query.whose], function(err, result) {
+    done();
 
-      if (err) {
-        console.error('error running query', err.stack);
-        res.statusCode = 500;
-        return res.send(err.stack);
-      }
+    if (err) {
+      console.error('error running query', err.stack);
+      res.statusCode = 500;
+      return res.send(err.stack);
+    }
 
-      res.statusCode = 200;
-      res.send(result.rows);
-    });
+    res.statusCode = 200;
+    res.send(result.rows);
 
-  else if (req.query.whose === '-1') {
-    // list only my repositories
-    conn.query(
-      'SELECT DISTINCT repositories.id, repositories.name ' + // distinct??
-      'FROM repositories ' +
-      'INNER JOIN runs ' +
-      'ON repositories.id = runs.repositories_id ' +
-      'AND runs.users_id = $1',
-    [user.id], function(err, result) {
-      done();
+  });
 
-      if (err) {
-        console.error('error running query', err.stack);
-        res.statusCode = 500;
-        return res.send(err.stack);
-      }
 
-      res.statusCode = 200;
-      res.send(result.rows);
+  // if (typeof req.query.whose === 'undefined' || req.query.whose === '0') {
+  //   // list only my repositories
+  //   conn.query(
+  //     'SELECT DISTINCT repositories.id, repositories.name ' + // distinct??
+  //     'FROM repositories ' +
+  //     'INNER JOIN runs ' +
+  //     'ON repositories.id = runs.repositories_id ' +
+  //     'AND runs.users_id = $1',
+  //   [user.id], function(err, result) {
+  //     done();
 
-    });
-  } else if (req.query.whose === '0') {
-    // directly to latest run
-    conn.query(
-      'SELECT DISTINCT ' +
-        'repositories.id, ' +
-        'repositories.name, ' +
-        'runs.run_ref ' +
-      'FROM repositories ' +
-      'INNER JOIN runs ' +
-      'ON repositories.id = runs.repositories_id ' +
-      'AND runs.id IN (' +
-        'select id from runs where users_id = $1 order by created_at desc limit 1' +
-      ')',
-    [user.id], function(err, result) {
-      done();
+  //     if (err) {
+  //       console.error('error running query', err.stack);
+  //       res.statusCode = 500;
+  //       return res.send(err.stack);
+  //     }
 
-      if (err) {
-        console.error('error running query', err.stack);
-        res.statusCode = 500;
-        return res.send(err.stack);
-      }
+  //     res.statusCode = 200;
+  //     res.send(result.rows);
 
-      res.statusCode = 200;
-      res.send(result.rows);
+  //   });
+  // } else if (req.query.whose === '-1') {
+  //   // directly to latest run
+  //   conn.query(
+  //     'SELECT DISTINCT ' +
+  //       'repositories.id, ' +
+  //       'repositories.name, ' +
+  //       'runs.run_ref ' +
+  //     'FROM repositories ' +
+  //     'INNER JOIN runs ' +
+  //     'ON repositories.id = runs.repositories_id ' +
+  //     'AND runs.id IN (' +
+  //       'select id from runs where users_id = $1 order by created_at desc limit 1' +
+  //     ')',
+  //   [user.id], function(err, result) {
+  //     done();
 
-    })
-  } else {
+  //     if (err) {
+  //       console.error('error running query', err.stack);
+  //       res.statusCode = 500;
+  //       return res.send(err.stack);
+  //     }
 
-    // per user id not implemented
+  //     res.statusCode = 200;
+  //     res.send(result.rows);
 
+  //   })
+  // } else {
+
+  //   // per user id not implemented
+
+  // }
+}));
+
+
+app.get('/repos/:repo_id/testfiles', authenticated(function(req, res, user, conn, done) {
+  //////// TODO whose
+  conn.query('SELECT * FROM testfiles WHERE repositories_id = $1',
+  [req.params.repo_id],
+  function(err, result) {
+    done();
+
+    if (err) {
+      console.error('error running query', err.stack);
+      res.statusCode = 500;
+      return res.send(err.stack);
+    }
+
+    res.statusCode = 200;
+    res.send(result.rows);
+  });
+}));
+
+
+app.get('/testfiles/:testfile_id/tests', authenticated(function(req, res, user, conn, done) {
+  //////// TODO whose
+  conn.query('SELECT * FROM tests WHERE testfiles_id = $1',
+  [req.params.testfile_id],
+  function(err, result) {
+    done();
+
+    if (err) {
+      console.error('error running query', err.stack);
+      res.statusCode = 500;
+      return res.send(err.stack);
+    }
+
+    res.statusCode = 200;
+    res.send(result.rows);
+  });
+}));
+
+
+app.get('/tests/:test_id/metrics', authenticated(function(req, res, user, conn, done) {
+  var startDate = new Date();
+
+  switch (req.query.span) {
+    case 'hour':
+      startDate.setTime(startDate.getTime() - (1000 * 60 * 60));
+      break;
+    case 'day':
+      startDate.setTime(startDate.getTime() - (1000 * 60 * 60 * 24));
+      break;
+    case 'week':
+      startDate.setTime(startDate.getTime() - (1000 * 60 * 60 * 24 * 7));
+      break;
+    case 'month':
+      startDate.setTime(startDate.getTime() - (1000 * 60 * 60 * 24 * 7 * 4));
+      break;
+    case 'year':
+      startDate.setTime(startDate.getTime() - (1000 * 60 * 60 * 24 * 7 * 4 * 12));
+      break;
+    default:
+      startDate.setTime(startDate.getTime() - (1000 * 60 * 60));
+      break;
   }
 
+  /*
+SELECT
+  users.id as users_id,
+  runs.id as runs_id,
+  metrics.tests_id as test_id,
+  metrics.name as name,
+  metrics.value as value,
+  metrics.created_at as ts
+FROM
+  users
+JOIN
+  runs
+ON
+  users.id = 1
+  AND users.id = runs.users_id
+JOIN
+  metrics
+ON
+  metrics.runs_id = runs.id
+  AND metrics.tests_id = 16
+ORDER BY metrics.name, metrics.created_at
+;
+  */
 
+  var query = [
+    'SELECT',
+      'metrics.name as name,',
+      'metrics.value as value,',
+      'metrics.tests_id as test_id,',
+      'metrics.created_at as ts',
+    'FROM users',
+    'JOIN runs',
+    'ON',
+      'users.id = $1',
+      'AND users.id = runs.users_id',
+    'JOIN metrics',
+    'ON',
+      'metrics.runs_id = runs.id',
+      'AND metrics.tests_id = $2',
+    'WHERE metrics.created_at >= $3',
+    'ORDER BY metrics.name, metrics.created_at'
+  ];
 
+  var bind = [req.query.whose, req.params.test_id, startDate.toISOString()];
 
+  conn.query(query.join(' '), bind, function(err, result) {
+    done();
+    if (err) {
+      console.error('error running query', err.stack);
+      res.statusCode = 500;
+      return res.send(err.stack);
+    }
+
+    res.statusCode = 200;
+    res.send(result.rows);
+
+  });
 }));
 

@@ -16,7 +16,7 @@ exports.up = function(db, callback) {
   async.series([
 
     db.all.bind(db, 'CREATE TABLE users (' +
-      'id SERIAL,' +
+      'id BIGSERIAL,' +
       'username TEXT,' +
       'password TEXT,' +
       'api_key TEXT' +

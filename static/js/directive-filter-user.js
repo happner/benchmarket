@@ -8,42 +8,46 @@ FilterUser = ['$http', '$rootScope', 'clientSession', function($http, $rootScope
 
       scope.isLoggedIn = clientSession.isLoggedIn;
 
-      scope.filterUserSelection = [
-        {
-          id: -2,
-          name: 'everyones'
-        },
-        {
-          id: -1,
-          name: 'my'
-        },
-        {
-          id: 0,
-          name: 'my latest run\'s'
-        }
-        // preceding are negative numbers to allow for list of user id's starting from 1 later
-      ];
-
-      // remember previous across page refresh
-      if (localStorage.filterUserSeq) {
-        scope.filterUser = scope.filterUserSelection[parseInt(localStorage.filterUserSeq)];
-      } else {
-        scope.filterUser = scope.filterUserSelection[0];
-      }
-
-      scope.applyUserFilter = function() {
-        for (var i = 0; i < scope.filterUserSelection.length; i++) {
-          if (scope.filterUser.id === scope.filterUserSelection[i].id) {
-            localStorage.filterUserSeq = i.toString();
-            break;
+      var loadUserList = function() {
+        $http.get('/users', {
+          headers: {
+            Authorization: clientSession.getApiKey()
           }
-        }
+        }).then(function(res) {
+          scope.filterUserSelection = res.data;
 
-        scope.loadRepos();
+          if (typeof localStorage.userSelection !== 'undefined') {
+            console.log('load historical selected user')
+            var i = 0;
+            for (; i < scope.filterUserSelection.length; i++) {
+              if (parseInt(scope.filterUserSelection[i].id) === parseInt(localStorage.userSelection)) {
+                scope.filterUser = scope.filterUserSelection[i];
+                scope.changeUserFilter();
+              }
+            }
+          }
 
+        }).catch(function(err) {
+          console.error('in getting users', err);
+          clientSession.logout();
+        });
       }
 
+      scope.changeUserFilter = function() {
+        console.log('change user filter', scope.filterUser);
+        localStorage.userSelection = scope.filterUser.id;
+        $rootScope.$emit('selectedUser');
+      }
 
+      $rootScope.$on('login', function(ev) {
+        console.log('load users list');
+        loadUserList();
+      });
+
+      if (scope.isLoggedIn()) {
+        console.log('load users list');
+        loadUserList();
+      }
 
     }
   }

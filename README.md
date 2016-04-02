@@ -53,12 +53,7 @@ module.exports = {
 
   api_key: '9c572bf0-eca1-4247-8bef-d1df51d42239', // as from /register
   api_uri: 'http://your.server/benchmarks'
-
   repo: 'name',
-
-  // include memory usage in benchmarks
-  mem: true,
-  mem_interval: 5000,
 
 }
 ```

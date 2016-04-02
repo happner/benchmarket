@@ -16,10 +16,10 @@ exports.up = function(db, callback) {
   async.series([
 
     db.all.bind(db, 'CREATE TABLE runs (' +
-      'id SERIAL,' +
+      'id BIGSERIAL,' +
       'run_ref TEXT,' +
-      'users_id INTEGER,' +
-      'repositories_id INTEGER,' +
+      'users_id BIGINT,' +
+      'repositories_id BIGINT,' +
       'created_at TIMESTAMP WITHOUT TIME ZONE' +
     ')'),
 

@@ -1,0 +1,30 @@
+.collapse-set-span {
+    visibility: hidden;
+    position: absolute;
+    top: 0px;
+    height: 0px;
+}
+
+.set-span-panel {
+    margin-top: 2px;
+    /*border: 1px solid black;*/
+    height: 15px;
+    width: 180px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.span-option {
+    border: 1px solid grey;
+    width: 30;
+    height: 12px;
+    padding: 2px;
+    float: left;
+    font-size: 10px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.highlight-set-span {
+    background-color: #dddddd;
+}

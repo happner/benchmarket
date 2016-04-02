@@ -16,8 +16,8 @@ exports.up = function(db, callback) {
   async.series([
 
     db.all.bind(db, 'CREATE TABLE testfiles (' +
-      'id SERIAL,' +
-      'repositories_id INTEGER,' +
+      'id BIGSERIAL,' +
+      'repositories_id BIGINT,' +
       'created_at TIMESTAMP WITHOUT TIME ZONE,' +
       'name TEXT,' +
       // 'last_run_global TEXT,' +

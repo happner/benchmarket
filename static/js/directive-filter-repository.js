@@ -8,13 +8,7 @@ FilterRepository = ['$http', '$rootScope', 'clientSession', function($http, $roo
 
       scope.isLoggedIn = clientSession.isLoggedIn;
 
-      scope.filterRepositorySelection = [];
-
-      scope.filterRepository = scope.filterRepositorySelection[0];
-
-
-      scope.loadRepos = function() {
-
+      var loadRepoList = function() {
         if (!scope.isLoggedIn()) return;
 
         $http.get('/repos?whose=' + scope.filterUser.id, {
@@ -36,17 +30,57 @@ FilterRepository = ['$http', '$rootScope', 'clientSession', function($http, $roo
             }
           },
           function(err) {
-            console.error('ERR', err);
+            console.error('in getting repositories', err);
             clientSession.logout();
           }
-        )
+        );
       }
 
-      scope.loadRepos();
-
-      $rootScope.$on('login', function() {
-        scope.loadRepos();
+      $rootScope.$on('selectedUser', function(ev) {
+        console.log('load repo list');
+        loadRepoList();
       });
+
+
+      // scope.filterRepositorySelection = [];
+
+      // scope.filterRepository = scope.filterRepositorySelection[0];
+
+
+      // scope.loadRepos = function() {
+
+      //   if (!scope.isLoggedIn()) return;
+
+      //   $http.get('/repos?whose=' + scope.filterUser.id, {
+      //     headers: {
+      //       Authorization: clientSession.getApiKey()
+      //     }
+      //   }).then(
+      //     function(res) {
+      //       if (res.status === 200) {
+      //         scope.loadingRepos = '';
+      //         scope.filterRepositorySelection = res.data;
+
+      //         if (res.data.length === 1) {
+      //           scope.filterRepository = scope.filterRepositorySelection[0];
+      //           scope.applyRepoFilter();
+      //         }
+
+      //         return;
+      //       }
+      //     },
+      //     function(err) {
+      //       console.error('in getting repositories', err);
+      //       clientSession.logout();
+      //     }
+      //   );
+      // }
+
+      // // scope.loadRepos();
+
+      // $rootScope.$on('login', function() {
+      //   scope.loadRepos();
+      // });
 
 
       scope.applyRepoFilter = function() {
@@ -55,24 +89,9 @@ FilterRepository = ['$http', '$rootScope', 'clientSession', function($http, $roo
           return;
         }
 
-        console.log('APPLY filter repo TO ', scope.filterRepository);
+        $rootScope.$emit('repo', scope.filterRepository);
       }
 
-      // scope.filterUserSelection = [
-      //   {
-      //     id: 0,
-      //     name: 'my'
-      //   },
-      //   {
-      //     id: -1,
-      //     name: 'everyones'
-      //   }
-      // ];
-      // scope.filterUser = scope.filterUserSelection[0]
-
-      // scope.applyFilter = function() {
-      //   console.log(scope.filterUser);
-      // }
 
     }
   }
