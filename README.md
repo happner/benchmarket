@@ -26,6 +26,8 @@ curl -i -H "Authorization: xxx" \
 ## Usage (client in tests)
 
 Use in tests to create benchmark metrics.
+* A `start()` and `stop()` method needs to be placed before and after all tests to be benchmarked.
+* A `store()` method needs to be called from an `after` hook.
 
 ```javascript
 var bench = require('benchmarket');
