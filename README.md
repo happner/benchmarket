@@ -61,7 +61,9 @@ it('test title', function() {
 
 ### Inline Store Timeout
 
-The `bench.store()`, as called as the after hook does the writing of all accumulated metrics to the server. This may sometimes take longer that the default or configured value (see config below). The `bench.store()` function allows for the passing of a timeout to override for just _this_ testfile.
+The `bench.store()`, as called is the after hook does the writing of all accumulated metrics to the server. This may sometimes take longer that the default or configured value (see config below). Already a default of 6 seconds extends the mocha default of 2.
+
+The `bench.store()` function further allows for the passing of a timeout to override for just _this_ testfile.
 
 ```javascript
 var bench = require('benchmarket');
