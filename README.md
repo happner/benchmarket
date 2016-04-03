@@ -87,6 +87,7 @@ module.exports = {
   api_key: '9c572bf0-eca1-4247-8bef-d1df51d42239', // as from /register
   api_uri: 'http://your.server/benchmarks'
   repo: 'name',
+  dirname: __dirname, // masked off the test filename into storage
   timeout: 6000, // set timeout to wait for metric upload (in stop() called as after hook)
 
 }
@@ -97,6 +98,8 @@ module.exports = {
 The configurer runs ahead of each test. It searches for `.benchmarket.js` by walking up the directory tree (toward root), starting from the directory containing the testfile.
 
 It loads config keys from each found file. The first encountered key wins in cases where a key is found in multiple locations during the walk.
+
+*IMPORTANT* In order to mask out the full path of the test files *the repo dirname needs to be specified in config*. See second example.
 
 eg.
 
@@ -116,10 +119,9 @@ at `/home/me/git/happn/.benchmarket.js`
 // for only the happn repo.
 module.exports = {
   repo: 'happn',
+  dirname: __dirname,
 }
 ```
-
-**IMPORTANT:** To disable a boolean config declared uptree set it to `null`
 
 ***
 
