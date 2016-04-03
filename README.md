@@ -91,7 +91,7 @@ module.exports = {
 
 ### Composite config
 
-The configurer runs ahead of each test. It searches for `.benchmarket.js` by walking up the directory tree (toward root), starting from the directory containing the testfile.
+The configurer runs ahead of each testfile. It searches for `.benchmarket.js` by walking up the directory tree (toward root), starting from the directory containing the testfile.
 
 It loads config keys from each found file. The first encountered key wins in cases where a key is found in multiple locations during the walk.
 
