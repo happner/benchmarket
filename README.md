@@ -25,20 +25,49 @@ curl -i -H "Authorization: xxx" \
 
 ## Usage (client in tests)
 
-Use in tests to create benchmark metrics. Currently only memory stats.
+Use in tests to create benchmark metrics.
 
 ```javascript
+var bench = require('benchmarket');
 describe('suite name', function() {
 
-  require('benchmarket').start();
+  bench.start();
+  after(bench.store());
 
-  after(require('benchmarket').stop);
-
-  // all tests are transparently wrapped in benchmarket function
+  // Each test is wrapped in a benchmark function that measures:
+  // a. Test duration.
+  // b. Memory (HeapUsed delta, how much _more_ memory is in use
+  //    for having run the test.
 
   it('test 1', function(done) {});
   it('test 2', function(done) {});
 
+  bench.stop();
+
+});
+```
+
+### Inline Custom Metrics
+
+Additional metrics can be created in tests by submitting a `name` and `value`. It suports only numerical values.
+
+```javascript
+it('test title', function() {
+  bench.metric('pi', 3.14);
+})
+```
+
+### Inline Store Timeout
+
+The `bench.store()`, as called as the after hook does the writing of all accumulated metrics to the server. This may sometimes take longer that the default or configured value (see config below). The `bench.store()` function allows for the passing of a timeout to override for just _this_ testfile.
+
+```javascript
+var bench = require('benchmarket');
+describe('suite name', function() {
+  //...
+  after(bench.store({timeout: 9000}));
+
+  //...
 });
 ```
 
@@ -54,6 +83,7 @@ module.exports = {
   api_key: '9c572bf0-eca1-4247-8bef-d1df51d42239', // as from /register
   api_uri: 'http://your.server/benchmarks'
   repo: 'name',
+  timeout: 6000, // set timeout to wait for metric upload (in stop() called as after hook)
 
 }
 ```
