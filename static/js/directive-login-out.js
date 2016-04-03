@@ -8,8 +8,8 @@ LoginOut = ['$http', '$rootScope', 'clientSession', function($http, $rootScope, 
 
       scope.isLoggedIn = clientSession.isLoggedIn;
 
-      scope.username = 'chrome';
-      scope.password = 'p';
+      // scope.username = 'chrome';
+      // scope.password = 'p';
 
       scope.login = function() {
         if (scope.username.length == 0 || scope.password.length == 0) return;
