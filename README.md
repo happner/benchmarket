@@ -108,6 +108,7 @@ module.exports = {
   // by adding them here instead.
   repo: 'name-of-repo',
   dirname: '/home/of/repo',
+  host: 'computer name',
 
 }
 ```
