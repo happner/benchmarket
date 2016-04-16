@@ -32,18 +32,38 @@ describe('suite name', function() {
   bench.start();
   after(bench.store());
 
-  // Each test is wrapped in a benchmark function that measures:
+  // Test 1 and 2 are wrapped in a benchmark function that measures:
   // a. Test duration.
   // b. Memory (HeapUsed delta, how much _more_ memory is in use
   //    for having run the test.
 
-  it('test 1', function(done) {});
-  it('test 2', function(done) {});
+  it('test 1', function() {});
+  it('test 2', function() {});
 
   bench.stop();
 
+  it('test 3', functoin() {});
+
 });
 ```
+
+### Bench Only Specific Tests
+
+Wrap selected tests into the bench function (decorator)
+
+```javascript
+var bench = require('benchmarket');
+describe('suite name', function() {
+  
+  after(bench.store());
+
+  it('test1', bench(function(done) {
+    done();
+  }));
+
+});
+```
+
 
 ### Inline Custom Metrics
 
@@ -84,7 +104,7 @@ module.exports = {
   api_uri: 'http://your.server/benchmarks'
   repo: 'name',
   dirname: __dirname, // masked off the test filename into storage
-  timeout: 6000, // set timeout to wait for metric upload (in stop() called as after hook)
+  timeout: 6000, // set timeout to wait for metric store()
 
 }
 ```
