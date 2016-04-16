@@ -104,6 +104,10 @@ module.exports = {
   api_uri: 'http://your.server/benchmarks'
   timeout: 6000, // set timeout to wait for metric store()
 
+  // metrics will not be posted if requireGC is true but
+  // the tests were not started with --expose-gc
+  requireGC: true,
+
   // These are auto detected during the test run but can be overridden
   // by adding them here instead.
   repo: 'name-of-repo',
