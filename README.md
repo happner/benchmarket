@@ -124,9 +124,10 @@ Environment variables can be set and will override benchmarket config file value
 These include:
 
 ```
-BENCHMARKET_API_KEY
-BENCHMARKET_API_URI
-BENCHMARKET_HOST
+BENCHMARKET_API_KEY = 9c572bf0-eca1-4247-8bef-d1df51d42239
+BENCHMARKET_API_URI = http://your.server/benchmarks
+BENCHMARKET_HOST = 'computer name'
+BENCHMARKET_REQUIRE_GC = false
 ```
 
 
