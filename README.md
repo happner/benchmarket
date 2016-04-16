@@ -113,6 +113,19 @@ module.exports = {
 }
 ```
 
+### Environment Variables
+
+Environment variables can be set and will override benchmarket config file values.
+
+These include:
+
+```
+BENCHMARKET_API_KEY
+BENCHMARKET_API_URI
+BENCHMARKET_HOST
+```
+
+
 ### "Hiding" config in parent directory.
 
 The configurer runs ahead of each testfile. It searches for `.benchmarket.js` by walking up the directory tree (toward root), starting from the directory containing the testfile.
