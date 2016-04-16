@@ -1,6 +1,6 @@
 {
   "name": "benchmarket",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Mocha Benchmark",
   "main": "index.js",
   "scripts": {
