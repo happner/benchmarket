@@ -99,42 +99,32 @@ Place `.benchmarket.js` into your test directory.
 
 ```js
 module.exports = {
-
+  
   api_key: '9c572bf0-eca1-4247-8bef-d1df51d42239', // as from /register
   api_uri: 'http://your.server/benchmarks'
-  repo: 'name',
-  dirname: __dirname, // masked off the test filename into storage
   timeout: 6000, // set timeout to wait for metric store()
+
+  // These are auto detected during the test run but can be overridden
+  // by adding them here instead.
+  repo: 'name-of-repo',
+  dirname: '/home/of/repo',
 
 }
 ```
 
-### Composite config
+### "Hiding" config in parent directory.
 
 The configurer runs ahead of each testfile. It searches for `.benchmarket.js` by walking up the directory tree (toward root), starting from the directory containing the testfile.
 
 It loads config keys from each found file. The first encountered key wins in cases where a key is found in multiple locations during the walk.
 
-*IMPORTANT* In order to mask out the full path of the test files *the repo dirname needs to be specified in config*. See second example.
-
-eg.
+eg. A config placed in the parent directory of all git repos will apply to all and can keep the sensitive parts of the config out of the repos.
 
 at `/home/me/git/.benchmarket.js`
 ```js
-// This will apply to all git repos nested in /home/me/git/
 module.exports = {
   api_key: '9c572bf0-eca1-4247-8bef-d1df51d42239', // as from /register
   api_uri: 'http://your.server/benchmarks',
-  repo: 'none',
 }
 ```
 
-at `/home/me/git/happn/.benchmarket.js`
-```js
-// This will apply an alternative repo but still use the same api_key and api_uri (from uptree)
-// for only the happn repo.
-module.exports = {
-  repo: 'happn',
-  dirname: __dirname,
-}
-```
